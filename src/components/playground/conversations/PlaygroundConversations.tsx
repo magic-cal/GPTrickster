@@ -1,4 +1,4 @@
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import { usePlayground } from "@/context/PlaygroundProvider";
 import { Transition } from "@headlessui/react";
 import React from "react";

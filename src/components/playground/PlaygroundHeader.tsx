@@ -1,4 +1,4 @@
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import Link from "next/link";
 import React from "react";
 import { MdChatBubbleOutline } from "react-icons/md";

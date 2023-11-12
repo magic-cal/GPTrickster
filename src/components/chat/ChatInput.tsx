@@ -1,5 +1,5 @@
 import React from "react";
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import { MdSend } from "react-icons/md";
 
 type Props = {};
@@ -24,7 +24,7 @@ export default function ChatInput({}: Props) {
   React.useEffect(() => {
     const resize = () => {
       if (textAreaRef.current) {
-        textAreaRef.current.style.height = "40px";
+        textAreaRef.current.style.height = "30px";
         textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
       }
     };

@@ -1,4 +1,4 @@
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import { OpenAIChatMessage } from "@/utils/OpenAI";
 import React from "react";
 import { MdOutlineCancel } from "react-icons/md";
@@ -86,7 +86,7 @@ export default function PlaygroundMessage({
 
       <div className="flex basis-1/12 justify-center">
         <button
-          className={`group-hover:text-gray-300 text-transparent transition-all focus:outline-none hover:text-gray-700`}
+          className={`text-transparent transition-all focus:outline-none group-hover:text-gray-300 hover:text-gray-700`}
           onClick={handleRemove}
         >
           <MdOutlineCancel size={24} />

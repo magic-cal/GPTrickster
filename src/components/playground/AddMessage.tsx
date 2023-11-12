@@ -1,4 +1,4 @@
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import React from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 

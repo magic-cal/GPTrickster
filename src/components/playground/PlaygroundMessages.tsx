@@ -1,4 +1,4 @@
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import React, { useEffect } from "react";
 import AddMessage from "./AddMessage";
 import PlaygroundMessage from "./PlaygroundMessage";
@@ -20,10 +20,11 @@ export default function PlaygroundMessages({}: Props) {
     }
 
     if (
-        messageContainer.current &&
-        (!scrolling || messages.length != prevMessageLength)
+      messageContainer.current &&
+      (!scrolling || messages.length != prevMessageLength)
     ) {
-      messageContainer.current.scrollTop = messageContainer.current.scrollHeight;
+      messageContainer.current.scrollTop =
+        messageContainer.current.scrollHeight;
     }
   }, [messages]);
 
@@ -42,13 +43,13 @@ export default function PlaygroundMessages({}: Props) {
     };
   }, [submit]);
 
-// Scroll handling for auto scroll
+  // Scroll handling for auto scroll
   useEffect(() => {
     const handleScroll = () => {
       if (messageContainer.current) {
         if (
-            messageContainer.current.scrollTop <
-            messageContainer.current.scrollHeight -
+          messageContainer.current.scrollTop <
+          messageContainer.current.scrollHeight -
             messageContainer.current.offsetHeight
         ) {
           setScrolling(true);

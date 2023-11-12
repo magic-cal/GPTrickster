@@ -1,5 +1,5 @@
 import { AuthProvider } from "@/context/AuthProvider";
-import OpenAIProvider from "@/context/OpenAIProvider";
+import MessageCompletionProvider from "@/context/ChatCompletionProvider";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Analytics } from "@vercel/analytics/react";
@@ -22,9 +22,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <AuthProvider>
-        <OpenAIProvider>
+        <MessageCompletionProvider>
           <Component {...pageProps} />
-        </OpenAIProvider>
+        </MessageCompletionProvider>
       </AuthProvider>
       <Analytics />
     </>

@@ -1,4 +1,4 @@
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import React from "react";
 import Dropdown from "../input/Dropdown";
 import Slider from "../input/Slider";

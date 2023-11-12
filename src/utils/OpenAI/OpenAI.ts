@@ -1,4 +1,4 @@
-import { OpenAIChatMessage, OpenAIConfig } from "./OpenAI.types";
+import { OpenAIChatMessage as ChatMessage, OpenAIConfig } from "./OpenAI.types";
 import {
   createParser,
   ParsedEvent,
@@ -15,13 +15,10 @@ export const defaultConfig = {
 };
 
 export type OpenAIRequest = {
-  messages: OpenAIChatMessage[];
+  messages: ChatMessage[];
 } & OpenAIConfig;
 
-export const getOpenAICompletion = async (
-  token: string,
-  payload: OpenAIRequest
-) => {
+export const getCompletion = async (token: string, payload: OpenAIRequest) => {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 

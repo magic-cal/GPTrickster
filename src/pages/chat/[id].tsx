@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
 import { getConversation } from "./../../utils/History";
-import { useOpenAI } from "@/context/OpenAIProvider";
+import { useOpenAI } from "@/context/ChatCompletionProvider";
 import ChatHeader from "./../../components/chat/ChatHeader";
 
 export default function Chat() {
