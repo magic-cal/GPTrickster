@@ -13,10 +13,19 @@ import {
   OpenAIConfig,
   OpenAISystemMessage,
   OpenAIChatModels,
+  getCompletion,
 } from "@/utils/OpenAI";
 import React, { PropsWithChildren, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthProvider";
+import { SCRIPT_DEFAULT_ID, getScript } from "@/utils/Scripts";
+import {
+  Script,
+  Scripts,
+  createScript,
+  getScripts,
+  storeScript,
+} from "@/utils/Scripts";
 
 const CHAT_ROUTE = "/";
 
@@ -80,6 +89,8 @@ export default function MessageCompletionProvider({
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [script, setScript] = React.useState<Script>();
+  const [scriptPosition, setScriptPosition] = React.useState(0);
 
   // Conversation state
   const [conversations, setConversations] = React.useState<History>(
@@ -97,6 +108,9 @@ export default function MessageCompletionProvider({
   // Load conversation from local storage
   useEffect(() => {
     setConversations(getHistory());
+    setScriptPosition(0);
+    const script = getScript(SCRIPT_DEFAULT_ID);
+    setScript(script);
   }, []);
 
   const updateSystemMessage = (content: string) => {
@@ -182,6 +196,14 @@ export default function MessageCompletionProvider({
     handleStoreConversation();
   }, [messages, systemMessage, config]);
 
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      return;
+    }
+    submitMessages(messages);
+  }, [messages]);
+
   const loadConversation = (id: string, conversation: Conversation) => {
     setConversationId(id);
 
@@ -239,25 +261,35 @@ export default function MessageCompletionProvider({
 
   const submitMessages = useCallback(
     async (messages_: ChatMessage[] = []) => {
-      if (loading) return;
+      if (loading) {
+        return;
+      }
       setLoading(true);
 
       messages_ = messages_.length ? messages_ : messages;
 
-      tryFetchCompletionFromScript(messages_);
-      fetchCompletion(messages_);
+      if (!tryFetchCompletionFromScript(messages_)) {
+        fetchCompletion(messages_);
+      }
 
       setLoading(false);
     },
     [config, messages, systemMessage, loading, token]
   );
 
-  const tryFetchCompletionFromScript = async (messages_: ChatMessage[]) => {
-    const lastUserMessage = messages_.filter(
-      (message) => message.role === "user"
-    )[messages_.length - 1];
+  const tryFetchCompletionFromScript = (messages_: ChatMessage[]) => {
+    const lastUserMessage = messages_
+      .filter((message) => message.role === "user")
+      .pop();
 
-    // There is a race condition here, if there is no pause before the setMessages call, nothing will be added to the messages array
+    if (lastUserMessage?.content?.charAt(0) !== " ") {
+      return false;
+    }
+
+    const scriptItem = script?.scriptItems[currentScriptPosition];
+    if (!scriptItem) {
+      return false;
+    }
 
     setMessages((prev) => {
       return [
@@ -265,90 +297,75 @@ export default function MessageCompletionProvider({
         {
           id: prev.length,
           role: "assistant",
-          content: "SCRIPT",
+          content: scriptItem.value,
         },
       ];
     });
 
-    if (lastUserMessage?.content?.[0] === " ") {
-      return true;
-    }
-    return false;
+    setCurrentScriptPosition((x) => x + 1);
+
+    return true;
   };
 
-  const script = [
-    "Hi there, how can I help?",
-    "Magic is the art of producing a desired effect or result through the use of incantation, ceremony, ritual, the casting of spells or various other techniques that presumably assure human control of supernatural agencies or the forces of nature.",
-    "Sure, what items would you like to use to make a magic trick",
-    "Here is a magic trick using those it is called 'The Vanishing Bandana'",
-  ];
-
   const fetchCompletion = async (messages_: ChatMessage[]) => {
-    // try {
-    //   const decoder = new TextDecoder();
-    const { body, ok } = await fetch("/api/completion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        ...config,
-        messages: [systemMessage, ...messages_].map(({ role, content }) => ({
-          role,
-          content,
-        })),
-      }),
-    });
-
-    //   if (!body) return;
-    //   const reader = body.getReader();
-
-    //   if (!ok) {
-    //     // Get the error message from the response body
-    //     const { value } = await reader.read();
-    //     const chunkValue = decoder.decode(value);
-    //     const { error } = JSON.parse(chunkValue);
-
-    //     throw new Error(
-    //       error?.message ||
-    //         "Failed to fetch response, check your API key and try again."
-    //     );
-    //   }
-
-    //   let done = false;
-
-    //   const message: ChatMessage = {
-    //     id: messages_.length,
-    //     role: "assistant",
-    //     content: "",
-    //   };
-
-    //   setMessages((prev) => {
-    //     message.id = prev.length;
-    //     return [...prev, message];
-    //   });
-
-    //   while (!done) {
-    //     const { value, done: doneReading } = await reader.read();
-    //     done = doneReading;
-    //     const chunkValue = decoder.decode(value);
-    //     message.content += chunkValue;
-
-    //     // updateMessageContent(message.id as number, message.content);
-    //   }
-    // } catch (error: any) {}
-    setMessages((prev) => {
-      setCurrentScriptPosition(currentScriptPosition + 1);
-      return [
-        ...prev,
-        {
-          id: prev.length,
-          role: "assistant",
-          content: script[currentScriptPosition],
+    console.log("fetchCompletion from API");
+    // return;
+    try {
+      const decoder = new TextDecoder();
+      const { body, ok } = await fetch("/api/completion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      ];
-    });
+        body: JSON.stringify({
+          ...config,
+          messages: [systemMessage, ...messages_].map(({ role, content }) => ({
+            role,
+            content,
+          })),
+        }),
+      });
+
+      if (!body) return;
+      const reader = body!.getReader();
+
+      if (!ok) {
+        // Get the error message from the response body
+        const { value } = await reader.read();
+        const chunkValue = decoder.decode(value);
+        const { error } = JSON.parse(chunkValue);
+
+        throw new Error(
+          error?.message ||
+            "Failed to fetch response, check your API key and try again."
+        );
+      }
+
+      let done = false;
+
+      const message: ChatMessage = {
+        id: messages_.length,
+        role: "assistant",
+        content: "",
+      };
+
+      setMessages((prev) => {
+        message.id = prev.length;
+        return [...prev, message];
+      });
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        message.content += chunkValue;
+
+        updateMessageContent(message.id as number, message.content);
+      }
+    } catch (error: any) {
+      console.warn("Error while fetching", error);
+    }
   };
 
   const addMessage = useCallback(
@@ -366,7 +383,6 @@ export default function MessageCompletionProvider({
             content: content || "",
           } as ChatMessage,
         ];
-        isSubmitting && submitMessages(messages);
         return messages;
       });
     },

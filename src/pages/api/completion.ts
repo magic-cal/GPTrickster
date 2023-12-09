@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { defaultConfig, getOpenAICompletion } from "@/utils/OpenAI";
+import { defaultConfig, getCompletion } from "@/utils/OpenAI";
 import { OpenAIRequest } from "@/utils/OpenAI";
 
 export const config = {
@@ -51,7 +51,7 @@ export default async function handler(
   };
 
   try {
-    const stream = await getOpenAICompletion(token, payload);
+    const stream = await getCompletion(token, payload);
     return new Response(stream);
   } catch (e: any) {
     return new Response(e.message || "Error fetching response.", {
