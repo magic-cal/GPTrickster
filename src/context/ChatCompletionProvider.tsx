@@ -1,31 +1,23 @@
+import { useAuth } from "@/context/AuthProvider";
 import {
-  clearHistory,
   Conversation,
+  History,
+  clearHistory,
+  deleteConversationFromHistory,
   getHistory,
   storeConversation,
-  History,
-  deleteConversationFromHistory,
   updateConversation,
 } from "@/utils/History";
 import {
-  defaultConfig,
   OpenAIChatMessage as ChatMessage,
+  OpenAIChatModels,
   OpenAIConfig,
   OpenAISystemMessage,
-  OpenAIChatModels,
-  getCompletion,
+  defaultConfig,
 } from "@/utils/OpenAI";
-import React, { PropsWithChildren, useCallback, useEffect } from "react";
+import { SCRIPT_DEFAULT_ID, Script, getScript } from "@/utils/Scripts";
 import { useRouter } from "next/router";
-import { useAuth } from "@/context/AuthProvider";
-import { SCRIPT_DEFAULT_ID, getScript } from "@/utils/Scripts";
-import {
-  Script,
-  Scripts,
-  createScript,
-  getScripts,
-  storeScript,
-} from "@/utils/Scripts";
+import React, { PropsWithChildren, useCallback, useEffect } from "react";
 
 const CHAT_ROUTE = "/";
 
@@ -90,7 +82,7 @@ export default function MessageCompletionProvider({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [script, setScript] = React.useState<Script>();
-  const [scriptPosition, setScriptPosition] = React.useState(0);
+  const [currentScriptPosition, setCurrentScriptPosition] = React.useState(0);
 
   // Conversation state
   const [conversations, setConversations] = React.useState<History>(
@@ -103,12 +95,10 @@ export default function MessageCompletionProvider({
   );
   const [config, setConfig] = React.useState<OpenAIConfig>(defaultConfig);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
-  const [currentScriptPosition, setCurrentScriptPosition] = React.useState(0);
 
   // Load conversation from local storage
   useEffect(() => {
     setConversations(getHistory());
-    setScriptPosition(0);
     const script = getScript(SCRIPT_DEFAULT_ID);
     setScript(script);
   }, []);
