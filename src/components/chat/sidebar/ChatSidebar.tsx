@@ -1,10 +1,6 @@
 import { useOpenAI } from "@/context/ChatCompletionProvider";
 import Link from "next/link";
-import { MdAdd, MdBuild, MdDeleteOutline } from "react-icons/md";
-import ApiKey from "./buttons/ApiKey";
-import ButtonContainer from "./buttons/ButtonContainer";
-import CurrentModel from "./buttons/CurrentModel";
-import ThemeButton from "./buttons/ThemeButton";
+import { MdAdd, MdBuild } from "react-icons/md";
 import Conversations from "./conversation/Conversations";
 
 type Props = {};
@@ -26,10 +22,6 @@ export default function ChatSidebar({}: Props) {
         <Conversations />
 
         <div className="flex flex-col gap-y-2 border-y border-white/10 py-2">
-          {/* <div className="flex flex-col gap-y-2 border-b border-white/10">
-            <CurrentModel />
-            <ApiKey />
-          </div> */}
           <Link
             className="flex items-center gap-3 rounded p-3 transition-colors hover:bg-gray-500/10"
             href="/playground"
@@ -37,12 +29,6 @@ export default function ChatSidebar({}: Props) {
             <MdBuild />
             Settings
           </Link>
-          {/* <ButtonContainer onClick={clearConversations}>
-            <MdDeleteOutline />
-            Clear Conversations
-          </ButtonContainer>
-
-          <ThemeButton /> */}
         </div>
       </div>
     </div>

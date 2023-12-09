@@ -4,6 +4,7 @@ import React from "react";
 import { MdPerson, MdSmartToy } from "react-icons/md";
 import AssistantMessageContent from "./AssistantMessageContent";
 import UserMessageContent from "./UserMessageContent";
+import OpenAiLogo from "@/components/misc/OpenAiLogo";
 
 type Props = {
   message: OpenAIChatMessage;
@@ -26,7 +27,7 @@ export default function ChatMessage({ message: { id, role, content } }: Props) {
             hover ? "text-stone-300" : "text-primary/20"
           }`}
         >
-          {role === "user" ? <MdPerson /> : <MdSmartToy />}
+          {role === "user" ? <MdPerson /> : <OpenAiLogo />}
         </div>
         <div className="overflow-x-auto">
           <div className="text-md prose w-full max-w-4xl rounded p-4 text-primary dark:prose-invert prose-code:text-primary prose-pre:bg-transparent prose-pre:p-0">

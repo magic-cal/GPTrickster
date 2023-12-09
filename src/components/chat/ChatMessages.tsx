@@ -54,19 +54,19 @@ export default function ChatMessages({}: Props) {
   }, [messages, scrolling]);
 
   // Command Enter to submit
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && e.metaKey) {
-        submit();
-      }
-    };
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (e.key === "Enter" && e.metaKey) {
+  //       submit();
+  //     }
+  //   };
 
-    window.addEventListener("keydown", handleKeyDown);
+  //   window.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [submit]);
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, [submit]);
 
   return (
     <div className="flex h-full w-full flex-col items-stretch md:pl-[260px]">
